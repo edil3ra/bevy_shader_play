@@ -7,7 +7,8 @@ use bevy::{
 };
 
 // Handle for the embedded shader
-const GLASS_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(0x8A2F4B6C_E1D0_459F_8765_A3C2D1B8E0F1);
+const GLASS_SHADER_HANDLE: Handle<Shader> =
+    Handle::weak_from_u128(0x8A2F4B6C_E1D0_459F_8765_A3C2D1B8E0F1);
 
 // The WGSL shader code as a string
 const GLASS_SHADER_CODE: &str = r#"
@@ -119,7 +120,7 @@ fn setup(
         mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
         material: materials.add(GlassMaterial {
             // Slightly blue, mostly white, and transparent
-            color: Color::rgba(0.85, 0.9, 1.0, 0.15), 
+            color: Color::rgba(0.85, 0.9, 1.0, 0.15),
         }),
         transform: Transform::from_xyz(0.0, 0.5, 0.0),
         ..default()
@@ -128,12 +129,13 @@ fn setup(
     // Spawn a ground plane (optional, for context)
     commands.spawn(PbrBundle {
         mesh: meshes.add(Plane3d::default().mesh().size(5.0, 5.0)),
-        material: materials.add(GlassMaterial { // Using glass for the plane too for simplicity
-             color: Color::rgba(0.7, 0.7, 0.8, 0.5), // Darker, more opaque glass for plane
+        material: materials.add(GlassMaterial {
+            // Using glass for the plane too for simplicity
+            color: Color::rgba(0.7, 0.7, 0.8, 0.5), // Darker, more opaque glass for plane
         }),
         ..default()
     });
-    
+
     // Spawn a point light
     commands.spawn(PointLightBundle {
         point_light: PointLight {
