@@ -1,7 +1,8 @@
 // Import necessary Bevy PBR bindings and functions
 #import bevy_pbr::mesh_functions
 #import bevy_pbr::mesh_bindings
-#import bevy_pbr::view_bindings
+#import bevy_pbr::mesh_view_bindings
+#import bevy_pbr::view_transformations::position_world_to_clip
 
 // Custom material uniform struct
 // Matches the GlassMaterial struct in Rust
@@ -10,6 +11,9 @@ var<uniform> material_properties: vec4<f32>; // color (r, g, b, a)
 
 // Vertex shader input structure
 struct Vertex {
+    // This is needed if you are using batching and/or gpu preprocessing
+    // It's a built in so you don't need to define it in the vertex layout
+    @builtin(instance_index) instance_index: u32,
     @location(0) position: vec3<f32>,
     @location(1) normal: vec3<f32>, // Included for completeness, not used in this simple shader
     @location(2) uv: vec2<f32>,
@@ -24,10 +28,9 @@ struct VertexOutput {
 @vertex
 fn vertex(vertex_input: Vertex) -> VertexOutput {
     var out: VertexOutput;
-    // Calculate the world position of the vertex
-    let world_position_vec4 = mesh_functions::mesh_vertex_position_local_to_world(mesh_bindings::mesh.model, vertex_input.position);
-    // Transform to clip space
-    out.clip_position = view_bindings::view.view_proj * world_position_vec4;
+    var world_from_local = mesh_functions::get_world_from_local(vertex_input.instance_index);
+    var world_position = mesh_functions::mesh_position_local_to_world(world_from_local, vec4(vertex_input.position, 1.0));
+    out.clip_position = position_world_to_clip(world_position.xyz);
     out.uv = vertex_input.uv;
     return out;
 }
