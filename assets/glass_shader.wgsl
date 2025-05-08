@@ -1,7 +1,7 @@
 // Import necessary Bevy PBR bindings and functions
-#import bevy_pbr::mesh_functions::mesh_vertex_position_local_to_world
-#import bevy_pbr::mesh_bindings::mesh
-#import bevy_pbr::view_bindings::view
+#import bevy_pbr::mesh_functions
+#import bevy_pbr::mesh_bindings
+#import bevy_pbr::view_bindings
 
 // Custom material uniform struct
 // Matches the GlassMaterial struct in Rust
@@ -25,9 +25,9 @@ struct VertexOutput {
 fn vertex(vertex_input: Vertex) -> VertexOutput {
     var out: VertexOutput;
     // Calculate the world position of the vertex
-    let world_position_vec4 = mesh_vertex_position_local_to_world(mesh.model, vertex_input.position);
+    let world_position_vec4 = mesh_functions::mesh_vertex_position_local_to_world(mesh_bindings::mesh.model, vertex_input.position);
     // Transform to clip space
-    out.clip_position = view.view_proj * world_position_vec4;
+    out.clip_position = view_bindings::view.view_proj * world_position_vec4;
     out.uv = vertex_input.uv;
     return out;
 }
