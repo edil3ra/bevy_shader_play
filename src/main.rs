@@ -13,7 +13,8 @@ const GLASS_SHADER_HANDLE: Handle<Shader> =
 const GLASS_SHADER_CODE: &str = r#"
 // Import necessary Bevy PBR bindings and functions
 #import bevy_pbr::mesh_functions::{mesh_position_local_to_world}
-#import bevy_pbr::pbr_bindings::{globals, mesh_view_bindings}
+#import bevy_pbr::mesh_bindings::mesh
+#import bevy_pbr::view_bindings::view
 
 // Custom material uniform struct
 // Matches the GlassMaterial struct in Rust
@@ -37,9 +38,9 @@ struct VertexOutput {
 fn vertex(vertex_input: Vertex) -> VertexOutput {
     var out: VertexOutput;
     // Calculate the world position of the vertex
-    let world_position = mesh_position_local_to_world(mesh_view_bindings.model, vec4<f32>(vertex_input.position, 1.0));
+    let world_position_vec4 = mesh_position_local_to_world(mesh.model, vec4<f32>(vertex_input.position, 1.0));
     // Transform to clip space
-    out.clip_position = globals.view_proj * world_position;
+    out.clip_position = view.view_proj * world_position_vec4;
     out.uv = vertex_input.uv;
     return out;
 }
@@ -115,7 +116,7 @@ fn setup(
     mut materials: ResMut<Assets<GlassMaterial>>,
 ) {
     // Spawn a cube with the glass material
-    commands.spawn(MaterialMesh {
+    commands.spawn(MaterialMeshBundle {
         mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
         material: materials.add(GlassMaterial {
             // Slightly blue, mostly white, and transparent
@@ -126,8 +127,9 @@ fn setup(
     });
 
     // Spawn a ground plane (optional, for context)
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Plane3d::default().mesh().size(5.0, 5.0)),
+    // It also uses the custom GlassMaterial, so MaterialMeshBundle is appropriate.
+    commands.spawn(MaterialMeshBundle {
+        mesh: meshes.add(Plane { normal: Direction3d::Y, half_size: 2.5 }),
         material: materials.add(GlassMaterial {
             // Using glass for the plane too for simplicity
             color: Color::rgba(0.7, 0.7, 0.8, 0.5), // Darker, more opaque glass for plane
