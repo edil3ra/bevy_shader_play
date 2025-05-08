@@ -1,7 +1,5 @@
 // Import necessary Bevy PBR bindings and functions
 #import bevy_pbr::mesh_functions
-#import bevy_pbr::mesh_bindings
-#import bevy_pbr::mesh_view_bindings
 #import bevy_pbr::view_transformations::position_world_to_clip
 
 // Custom material uniform struct

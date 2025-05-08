@@ -26,6 +26,10 @@ struct GlassMaterial {
 }
 
 impl Material for GlassMaterial {
+    fn vertex_shader() -> ShaderRef {
+        SHADER_ASSET_PATH.into()
+    }
+
     fn fragment_shader() -> ShaderRef {
         SHADER_ASSET_PATH.into()
     }
