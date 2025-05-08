@@ -35,7 +35,7 @@ impl Material for GlassMaterial {
     }
 
     fn alpha_mode(&self) -> AlphaMode {
-        AlphaMode::Blend // Enable transparency
+        AlphaMode::Blend 
     }
 }
 
@@ -44,6 +44,7 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<GlassMaterial>>,
+    mut materials_standard: ResMut<Assets<StandardMaterial>>,
 ) {
     // Spawn a cube with the glass material
     commands.spawn((
@@ -53,6 +54,16 @@ fn setup(
             color: LinearRgba::new(0.85, 0.9, 1.0, 0.15),
         })),
         Transform::from_xyz(0.0, 0.5, 0.0),
+    ));
+
+
+    commands.spawn((
+        Mesh3d(meshes.add(Cuboid::default())),
+        MeshMaterial3d(materials_standard.add(StandardMaterial{
+            base_color: Color::srgb(1., 0., 0.),
+            ..Default::default()
+        })),
+        Transform::from_xyz(0., 0.5, 0.).with_scale(Vec3::splat(0.2)),
     ));
 
     // Spawn a ground plane (optional, for context)
@@ -69,7 +80,7 @@ fn setup(
     commands.spawn((
         PointLight {
             intensity: 1500.0, // Adjust intensity as needed
-            shadows_enabled: true,
+            // shadows_enabled: true,
             ..default()
         },
         Transform::from_xyz(4.0, 8.0, 4.0),
