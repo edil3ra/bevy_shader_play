@@ -51,7 +51,7 @@ fn setup(
         Mesh3d(meshes.add(Cuboid::default())),
         MeshMaterial3d(materials.add(GlassMaterial {
             // Slightly blue, mostly white, and transparent
-            color: LinearRgba::new(0.85, 0.9, 1.0, 0.15),
+            color: LinearRgba::new(0.85, 0.9, 1.0, 0.001),
         })),
         Transform::from_xyz(0.0, 0.5, 0.0),
     ));
@@ -63,18 +63,18 @@ fn setup(
             base_color: Color::srgb(1., 0., 0.),
             ..Default::default()
         })),
-        Transform::from_xyz(0., 0.5, 0.).with_scale(Vec3::splat(0.2)),
+        Transform::from_xyz(0.4, 0.3, -2.0).with_scale(Vec3::splat(0.5)),
     ));
 
-    // Spawn a ground plane (optional, for context)
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::default().mesh().size(5.0, 5.0))),
-        MeshMaterial3d(materials.add(GlassMaterial {
-            // Using glass for the plane too for simplicity
-            color: LinearRgba::new(0.7, 0.7, 0.8, 0.5), // Darker, more opaque glass for plane
-        })),
-        Transform::from_xyz(0.0, 0.5, 0.0),
-    ));
+    // // Spawn a ground plane (optional, for context)
+    // commands.spawn((
+    //     Mesh3d(meshes.add(Plane3d::default().mesh().size(5.0, 5.0))),
+    //     MeshMaterial3d(materials.add(GlassMaterial {
+    //         // Using glass for the plane too for simplicity
+    //         color: LinearRgba::new(0.7, 0.7, 0.8, 0.5), // Darker, more opaque glass for plane
+    //     })),
+    //     Transform::from_xyz(0.0, 0.5, 0.0),
+    // ));
 
     // Spawn a point light
     commands.spawn((

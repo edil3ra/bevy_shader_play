@@ -1,18 +1,21 @@
 // Import necessary Bevy PBR bindings and functions (Bevy 0.16 style)
 #import bevy_pbr::mesh_bindings::mesh
-#import bevy_pbr::view_bindings::view
-#import bevy_pbr::mesh_functions::{mesh_vertex_position_local_to_world, mesh_normal_local_to_world}
+#import bevy_pbr::mesh_view_bindings::view,
+#import bevy_pbr::mesh_functions::{mesh_position_local_to_world, mesh_normal_local_to_world, get_world_from_local}
+
+#import bevy_pbr::mesh_functions
+#import bevy_pbr::view_transformations::position_world_to_clip
 
 // Custom material uniform struct
 // Matches the GlassMaterial struct in Rust
-// Should be @group(1) for user materials with AsBindGroup derive
-@group(1) @binding(0)
+// Should be @group(2) for user materials with AsBindGroup derive
+@group(2) @binding(0)
 var<uniform> material_properties: vec4<f32>; // color (r, g, b, a)
 
 // Vertex shader input structure
 struct Vertex {
     // instance_index is available if needed, but not used in this version
-    // @builtin(instance_index) instance_index: u32, 
+    @builtin(instance_index) instance_index: u32, 
     @location(0) position: vec3<f32>,
     @location(1) normal: vec3<f32>,
     @location(2) uv: vec2<f32>,
@@ -29,18 +32,14 @@ struct VertexOutput {
 @vertex
 fn vertex(vertex_input: Vertex) -> VertexOutput {
     var out: VertexOutput;
-
-    // Calculate world position
-    out.world_position = mesh_vertex_position_local_to_world(mesh.model, vertex_input.position);
-    
-    // Calculate clip position
-    out.clip_position = view.view_proj * out.world_position;
-    
-    // Transform normal to world space
-    out.world_normal = mesh_normal_local_to_world(vertex_input.normal, mesh.model);
-    
+    var world_from_local = mesh_functions::get_world_from_local(vertex_input.instance_index);
+    out.world_position = mesh_functions::mesh_position_local_to_world(world_from_local, vec4(vertex_input.position, 1.0));
+    out.clip_position = position_world_to_clip(out.world_position.xyz);
     out.uv = vertex_input.uv;
+  // Transform normal to world space
+    out.world_normal = mesh_normal_local_to_world(vertex_input.normal, vertex_input.instance_index);
     return out;
+  
 }
 
 @fragment
@@ -50,12 +49,12 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     let dist_from_center_y = abs(in.uv.y - 0.5) * 2.0;
     let dist_from_center = max(dist_from_center_x, dist_from_center_y);
 
-    let border_width = 0.05; 
+    let border_width = 0.1; 
     let border_factor = smoothstep(1.0 - border_width, 1.0, dist_from_center);
     
     // Changed border highlight to white and made it more subtle
-    let border_highlight_color = vec3<f32>(1.0, 1.0, 1.0); 
-    let border_highlight_strength = 0.2;
+    let border_highlight_color = vec3<f32>(0.0, 1.0, 1.0); 
+    let border_highlight_strength = 0.5;
 
     // --- Fresnel Effect ---
     let normal = normalize(in.world_normal);
