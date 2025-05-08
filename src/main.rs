@@ -26,6 +26,10 @@ struct GlassMaterial {
 }
 
 impl Material for GlassMaterial {
+    fn vertex_shader() -> ShaderRef {
+        SHADER_ASSET_PATH.into()
+    }
+
     fn fragment_shader() -> ShaderRef {
         SHADER_ASSET_PATH.into()
     }
@@ -42,39 +46,41 @@ fn setup(
     mut materials: ResMut<Assets<GlassMaterial>>,
 ) {
     // Spawn a cube with the glass material
-    commands.spawn((
-        Mesh3d(meshes.add(Cuboid::default())),
-        MeshMaterial3d(materials.add(GlassMaterial {
+    commands.spawn(MaterialMeshBundle {
+        mesh: meshes.add(Cuboid::default()),
+        material: materials.add(GlassMaterial {
             // Slightly blue, mostly white, and transparent
             color: LinearRgba::new(0.85, 0.9, 1.0, 0.15),
-        })),
-        Transform::from_xyz(0.0, 0.5, 0.0),
-    ));
+        }),
+        transform: Transform::from_xyz(0.0, 0.5, 0.0),
+        ..default()
+    });
 
     // Spawn a ground plane (optional, for context)
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::default().mesh().size(5.0, 5.0))),
-        MeshMaterial3d(materials.add(GlassMaterial {
+    commands.spawn(MaterialMeshBundle {
+        mesh: meshes.add(Rectangle::from_size(Vec2::splat(5.0))),
+        material: materials.add(GlassMaterial {
             // Using glass for the plane too for simplicity
             color: LinearRgba::new(0.7, 0.7, 0.8, 0.5), // Darker, more opaque glass for plane
-        })),
-        Transform::from_xyz(0.0, 0.5, 0.0),
-    ));
+        }),
+        transform: Transform::from_xyz(0.0, 0.0, 0.0), // Place plane at y=0
+        ..default()
+    });
 
     // Spawn a point light
-    commands.spawn((
-        PointLight {
-            intensity: 1500.0, // Adjust intensity as needed
+    commands.spawn(PointLightBundle {
+        point_light: PointLight {
+            intensity: 1500.0, // Lumens
             shadows_enabled: true,
             ..default()
         },
-        Transform::from_xyz(4.0, 8.0, 4.0),
-    ));
+        transform: Transform::from_xyz(4.0, 8.0, 4.0),
+        ..default()
+    });
 
     // Spawn a camera
-    commands.spawn((
-        Camera::default(),
-        Camera3d::default(),
-        Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-    ));
+    commands.spawn(Camera3dBundle {
+        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    });
 }

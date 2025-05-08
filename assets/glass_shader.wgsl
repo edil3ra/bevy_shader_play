@@ -1,5 +1,5 @@
 // Import necessary Bevy PBR bindings and functions
-#import bevy_pbr::mesh_functions::{mesh_position_local_to_world}
+#import bevy_pbr::mesh_functions::mesh_vertex_position_local_to_world
 #import bevy_pbr::mesh_bindings::mesh
 #import bevy_pbr::view_bindings::view
 
@@ -25,7 +25,7 @@ struct VertexOutput {
 fn vertex(vertex_input: Vertex) -> VertexOutput {
     var out: VertexOutput;
     // Calculate the world position of the vertex
-    let world_position_vec4 = mesh_position_local_to_world(mesh.model, vec4<f32>(vertex_input.position, 1.0));
+    let world_position_vec4 = mesh_vertex_position_local_to_world(mesh.model, vertex_input.position);
     // Transform to clip space
     out.clip_position = view.view_proj * world_position_vec4;
     out.uv = vertex_input.uv;
