@@ -1,0 +1,3 @@
+- Use bevy 0.16
+- don't comment code
+- Minimal footprint

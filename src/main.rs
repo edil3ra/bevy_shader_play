@@ -1,95 +1,69 @@
 use bevy::{
-    asset::load_internal_asset,
+    asset::AssetApp,
     prelude::*,
     reflect::TypePath,
+    render::camera::ScalingMode,
     render::render_resource::{AsBindGroup, ShaderRef},
 };
 
-const SHADER_ASSET_PATH: &str = "glass_shader.wgsl";
-
 fn main() {
-    let mut app = App::new();
-
-
-
-    app.add_plugins(DefaultPlugins)
-        .add_plugins(MaterialPlugin::<GlassMaterial>::default())
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .add_plugins(MaterialPlugin::<FresnelMaterial>::default())
         .add_systems(Startup, setup)
         .run();
 }
 
-// Custom material definition
-#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
-struct GlassMaterial {
-    #[uniform(0)] // Corresponds to @group(1) @binding(0) in the shader
-    color: LinearRgba,
-}
-
-impl Material for GlassMaterial {
-    fn vertex_shader() -> ShaderRef {
-        SHADER_ASSET_PATH.into()
-    }
-
-    fn fragment_shader() -> ShaderRef {
-        SHADER_ASSET_PATH.into()
-    }
-
-    fn alpha_mode(&self) -> AlphaMode {
-        AlphaMode::Blend 
-    }
-}
-
-// Setup system to create the scene
+/// set up a simple 3D scene
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<GlassMaterial>>,
-    mut materials_standard: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<FresnelMaterial>>,
 ) {
-    // Spawn a cube with the glass material
+    // sphere with fresnel material
     commands.spawn((
-        Mesh3d(meshes.add(Cuboid::default())),
-        MeshMaterial3d(materials.add(GlassMaterial {
-            // Slightly blue, mostly white, and transparent
-            color: LinearRgba::new(0.85, 0.9, 1.0, 0.001),
+        Mesh3d(meshes.add(Sphere::default())),
+        MeshMaterial3d(materials.add(FresnelMaterial {
+            color: LinearRgba::BLACK,
         })),
         Transform::from_xyz(0.0, 0.5, 0.0),
     ));
 
-
-    commands.spawn((
-        Mesh3d(meshes.add(Cuboid::default())),
-        MeshMaterial3d(materials_standard.add(StandardMaterial{
-            base_color: Color::srgb(1., 0., 0.),
-            ..Default::default()
-        })),
-        Transform::from_xyz(0.4, 0.3, -2.0).with_scale(Vec3::splat(0.5)),
-    ));
-
-    // // Spawn a ground plane (optional, for context)
-    // commands.spawn((
-    //     Mesh3d(meshes.add(Plane3d::default().mesh().size(5.0, 5.0))),
-    //     MeshMaterial3d(materials.add(GlassMaterial {
-    //         // Using glass for the plane too for simplicity
-    //         color: LinearRgba::new(0.7, 0.7, 0.8, 0.5), // Darker, more opaque glass for plane
-    //     })),
-    //     Transform::from_xyz(0.0, 0.5, 0.0),
-    // ));
-
-    // Spawn a point light
+    // light
     commands.spawn((
         PointLight {
-            intensity: 1500.0, // Adjust intensity as needed
-            // shadows_enabled: true,
+            intensity: 1500.0,
+            shadows_enabled: true,
             ..default()
         },
         Transform::from_xyz(4.0, 8.0, 4.0),
     ));
 
-    // Spawn a camera
+    // camera
     commands.spawn((
         Camera::default(),
         Camera3d::default(),
+        Projection::from(OrthographicProjection {
+            scaling_mode: ScalingMode::FixedVertical {
+                viewport_height: 20.0,
+            },
+            ..OrthographicProjection::default_3d()
+        }),
         Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
     ));
 }
+
+#[derive(Asset, AsBindGroup, TypePath, Debug, Clone)]
+pub struct FresnelMaterial {
+    #[uniform(0)]
+    color: LinearRgba,
+}
+
+impl Material for FresnelMaterial {
+
+
+    fn fragment_shader() -> ShaderRef {
+        "fresnel_shader.wgsl".into()
+    }
+}
+

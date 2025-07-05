@@ -910,16 +910,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_new_2d"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "log",
- "rand",
- "tracing",
-]
-
-[[package]]
 name = "bevy_pbr"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1205,6 +1195,16 @@ dependencies = [
  "heapless",
  "pin-project",
  "wasm-bindgen-futures",
+]
+
+[[package]]
+name = "bevy_test_shaders"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "log",
+ "rand",
+ "tracing",
 ]
 
 [[package]]
